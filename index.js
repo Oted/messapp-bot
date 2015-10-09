@@ -342,7 +342,7 @@ internals.follow = function(id, done) {
  *  send multiple messages
  */
 internals.sendMessages = function(users, message, done) {
-    users = internals.filterOutStuff(users, "messaged");
+    users = internals.filterOutStuff(users, "messaged").slice(0,250);
     console.log('Messageee ' + users.length + ' ppl....');
 
     Async.eachLimit(users, 1, function(id, next) {
@@ -370,7 +370,7 @@ internals.sendMessage = function(id, message, done) {
 
         setTimeout(function() {
             return done(null, res);
-        }, Math.floor(Math.random() * settings.timespan + settings.timespan));
+        }, 72000);
     });
 };
 

@@ -341,6 +341,7 @@ internals.follow = function(id, done) {
  *  send multiple messages
  */
 internals.sendMessages = function(users, message, done) {
+    users = internals.filterOutStuff(users, "messaged");
     Async.eachLimit(users, 1, function(id, next) {
         return internals.sendMessage(id, message, next);
     }, done)

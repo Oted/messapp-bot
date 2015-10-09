@@ -44,7 +44,8 @@ internals.init = function() {
             ], function(err) {
                 internals.save(function() {
                     if (err) {
-                        throw err; 
+                        console.log(err);
+                        throw err;
                     }
 
                     console.log('All done!');
@@ -342,6 +343,8 @@ internals.follow = function(id, done) {
  */
 internals.sendMessages = function(users, message, done) {
     users = internals.filterOutStuff(users, "messaged");
+    console.log('Messageee ' + users.length + ' ppl....');
+
     Async.eachLimit(users, 1, function(id, next) {
         return internals.sendMessage(id, message, next);
     }, done)

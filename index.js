@@ -333,7 +333,7 @@ internals.follow = function(id, done) {
 
         setTimeout(function() {
             return done(err, res);
-        }, Math.floor(Math.random() * 5000 + settings.timespan));
+        }, Math.floor(Math.random() * settings.timespan + settings.timespan));
     });
 };
 

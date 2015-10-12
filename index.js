@@ -170,7 +170,7 @@ internals.getNonMutualRelationships = function(a1, a2) {
  *  Unfollow all in a given array
  */
 internals.unfollowAll = function(duchebags, done) {
-    duchebags = internals.filterOutStuff(duchebags, "unfollowed");
+    //duchebags = internals.filterOutStuff(duchebags, "unfollowed");
     console.log('Unfollowing ' + duchebags.length + ' duchebags....');
 
     return Async.eachLimit(duchebags, 1, internals.unfollow, function(err) {

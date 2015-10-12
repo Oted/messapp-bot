@@ -370,7 +370,7 @@ internals.sendMessage = function(id, message, done) {
 
         setTimeout(function() {
             return done(null, res);
-        }, 72000);
+        }, Math.floor(Math.random() * settings.timespan + 72000));
     });
 };
 

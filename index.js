@@ -30,8 +30,9 @@ internals.init = function() {
                 return res1.indexOf(el) > -1;
             }); 
 
-            console.log(res1.length, 'following');
-            console.log(res2.length, 'followers');
+            console.log(res1, 'following');
+            console.log(res2, 'followers');
+            process.exit();
             console.log(mutual.length, 'mutual');
             console.log(nonMutual.length, 'nonMutual');
             console.log(duchebags.length, 'duchebags');
@@ -324,8 +325,17 @@ internals.follow = function(id, done) {
             return done(err);
         }
 
+        var body = JSON.parse(res.body);
+
         if (res.statusCode !== 200) {
+            if (body.message === "You have been blocked from following this account at the request of the user.") {
+                console.log('Could not follow this user ' + id);
+                storage.followed[id]  = true;
+                return done(); 
+            }
+
             console.log(res);
+
             return done(new Error('Invalid statuscode ' + res.statusCode));
         }
     
@@ -389,7 +399,8 @@ setInterval(function() {
 }, 30000);
 
 //internals.unfollow(15537791, function(err,res){});
-// internals.follow(3335978770, function(err, res){
+// internals.follow(3087094572, function(err, res){
+    // console.log(arguments);
     // process.exit()
 // });
 internals.init();

@@ -26,9 +26,9 @@ internals.init = function() {
             
             var mutual      = internals.getMutualRelationships(res1, res2);
             var nonMutual   = internals.getNonMutualRelationships(res1, res2);
-            var duchebags   = nonMutual.filter(function(el) {
-                return res1.indexOf(el) > -1;
-            }); 
+            var duchebags   = res1.filter(function(el) {
+                return res2.indexOf(el) === -1;
+            });
 
             console.log(res1, 'following');
             console.log(res2, 'followers');

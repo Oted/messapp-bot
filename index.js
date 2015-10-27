@@ -2,8 +2,8 @@ var Twitter     = require('twitter'),
     Async       = require('async'),
     Request     = require('request'),
     settings    = require('./settings.json'),
-    storage     = require('./storage.json'),
-    Fs          = require('fs');
+    Fs          = require('fs'),
+    storage     = JSON.parse(Fs.readFileSync('./storage.json'));
 
 var internals   = {
     "calls" : 0

@@ -30,9 +30,8 @@ internals.init = function() {
                 return res2.indexOf(el) === -1;
             });
 
-            console.log(res1, 'following');
-            console.log(res2, 'followers');
-            process.exit();
+            console.log(res1.length, 'following');
+            console.log(res2.length, 'followers');
             console.log(mutual.length, 'mutual');
             console.log(nonMutual.length, 'nonMutual');
             console.log(duchebags.length, 'duchebags');
@@ -40,8 +39,8 @@ internals.init = function() {
             //do the work
             Async.series([
                 internals.unfollowAll.bind(this, duchebags),
-                internals.followMany.bind(this, mutual),
-                internals.sendMessages.bind(this, mutual, settings.message)
+                internals.followMany.bind(this, mutual)
+                // internals.sendMessages.bind(this, mutual, settings.message)
             ], function(err) {
                 internals.save(function() {
                     if (err) {
@@ -229,13 +228,14 @@ internals.unfollow = function(id, done) {
             return done(err);
         }
 
+        storage.unfollowed[id]  = true;
+
         if (res.statusCode !== 200) {
-            console.log(res);
-            return done(new Error('Invalid statuscode ' + res.statusCode));
+            console.log('Could not unfollow ' + id + ' ... : ' + (res.message || res.statusCode));
+            return done();
         }
     
         console.log('User ' + id + ' unfollowed!');
-        storage.unfollowed[id]  = true;
 
         return setTimeout(function() {
             return done(err, res);
@@ -324,23 +324,33 @@ internals.follow = function(id, done) {
 
             return done(err);
         }
-
-        var body = JSON.parse(res.body);
+         
+        storage.followed[id]  = true;
 
         if (res.statusCode !== 200) {
-            if (body.message === "You have been blocked from following this account at the request of the user.") {
-                console.log('Could not follow this user ' + id);
-                storage.followed[id]  = true;
-                return done(); 
+            var body;
+
+            try {
+                body = JSON.parse(res.body);
+            } catch (err) {
+                console.log('Could not follow ' + id + ' for unknown reasons..');
+                return done();
             }
 
-            console.log(res);
+            if (!body) {
+                console.log('Could not follow ' + id + ' for unknown reasons..');
+                return done();
+            }
+
+            if (body.message === "You have been blocked from following this account at the request of the user.") {
+                console.log('Could not follow this user ' + id);
+                return done();
+            }
 
             return done(new Error('Invalid statuscode ' + res.statusCode));
         }
     
         console.log('User ' + id + ' followed!');
-        storage.followed[id]  = true;
 
         setTimeout(function() {
             return done(err, res);
@@ -376,7 +386,7 @@ internals.sendMessage = function(id, message, done) {
         }
 
         console.log('Direct message sent to ' + id);
-        storage.messaged[id]  = true;
+        storage.messaged[id] = true;
 
         setTimeout(function() {
             return done(null, res);

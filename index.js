@@ -36,13 +36,11 @@ internals.init = function() {
             console.log(nonMutual.length, 'nonMutual');
             console.log(duchebags.length, 'duchebags');
 
-            process.exit();
-
             //do the work
             Async.series([
                 internals.unfollowAll.bind(this, duchebags),
-                internals.followMany.bind(this, mutual)
-                // internals.sendMessages.bind(this, mutual, settings.message)
+                internals.followMany.bind(this, mutual),
+                internals.sendMessages.bind(this, mutual, settings.message)
             ], function(err) {
                 internals.save(function() {
                     if (err) {

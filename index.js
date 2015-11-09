@@ -36,6 +36,8 @@ internals.init = function() {
             console.log(nonMutual.length, 'nonMutual');
             console.log(duchebags.length, 'duchebags');
 
+            process.exit();
+
             //do the work
             Async.series([
                 internals.unfollowAll.bind(this, duchebags),
@@ -69,9 +71,10 @@ internals.save = function(done) {
  *
  *  Returns a list of ids
  */
-internals.getFriends = function(done, id) {
+internals.getFriends = function(done, id, result, cursor) {
     var params = {
-        count : 5000
+        count:  5000,
+        cursor : cursor ? cursor : -1
     };
 
     if (id) {
@@ -85,11 +88,20 @@ internals.getFriends = function(done, id) {
 
     return client.get('friends/ids', params, function(err, res, response) {
         internals.calls++;
+
         if (err) {
             console.log(res);
         }
 
-        return done(err, res.ids);
+        result = (res.ids || []).concat(result ? result : []);
+    
+        if (res.next_cursor && !id) {
+            return setTimeout(function() {
+                internals.getFollowers(done, id, result, res.next_cursor_str);
+            }, 5000);
+        }
+
+        return done(err, result);
     });
 };
 
@@ -98,9 +110,10 @@ internals.getFriends = function(done, id) {
  *
  *  Returns a list of ids
  */
-internals.getFollowers = function(done, id) {
+internals.getFollowers = function(done, id, result, cursor) {
     var params = {
-        count:  5000
+        count:  5000,
+        cursor : cursor ? cursor : -1
     };
 
     if (id) {
@@ -114,11 +127,20 @@ internals.getFollowers = function(done, id) {
 
     return client.get('followers/ids', params, function(err, res, response) {
         internals.calls++;
+
+        result = (res.ids || []).concat(result ? result : []);
+
         if (err) {
             console.log(res);
         }
+    
+        if (res.next_cursor && !id) {
+            return setTimeout(function() {
+                internals.getFollowers(done, id, result, res.next_cursor_str);
+            }, 5000);
+        }
 
-        return done(err, res.ids)
+        return done(err, result);
     });
 };
 

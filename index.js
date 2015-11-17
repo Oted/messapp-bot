@@ -36,6 +36,7 @@ internals.init = function() {
             console.log(nonMutual.length, 'nonMutual');
             console.log(duchebags.length, 'duchebags');
 
+            process.exit();
             //do the work
             Async.series([
                 internals.unfollowAll.bind(this, duchebags),
@@ -95,7 +96,7 @@ internals.getFriends = function(done, id, result, cursor) {
     
         if (res.next_cursor && !id) {
             return setTimeout(function() {
-                internals.getFollowers(done, id, result, res.next_cursor_str);
+                internals.getFriends(done, id, result, res.next_cursor_str);
             }, 5000);
         }
 

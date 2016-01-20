@@ -30,18 +30,19 @@ internals.init = function() {
                 return res2.indexOf(el) === -1;
             });
 
+            console.log(new Date());
+            console.log();
             console.log(res1.length, 'following');
             console.log(res2.length, 'followers');
             console.log(mutual.length, 'mutual');
             console.log(nonMutual.length, 'nonMutual');
             console.log(duchebags.length, 'duchebags');
 
-            process.exit();
             //do the work
             Async.series([
                 internals.unfollowAll.bind(this, duchebags),
-                internals.followMany.bind(this, mutual),
-                internals.sendMessages.bind(this, mutual, settings.message)
+                internals.followMany.bind(this, mutual)
+                //internals.sendMessages.bind(this, mutual, settings.message)
             ], function(err) {
                 internals.save(function() {
                     if (err) {

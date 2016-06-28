@@ -40,8 +40,8 @@ internals.init = function() {
 
             //do the work
             Async.series([
-                internals.unfollowAll.bind(this, duchebags),
-                internals.followMany.bind(this, mutual)
+                internals.unfollowAll.bind(this, duchebags)
+                // internals.followMany.bind(this, mutual)
                 //internals.sendMessages.bind(this, mutual, settings.message)
             ], function(err) {
                 internals.save(function() {
@@ -215,7 +215,7 @@ internals.unfollow = function(id, done) {
     }
 
     var options = {
-        "uri" : "https://twitter.com/i/user/unfollow?authenticity_token=" + settings.token + "&challenges_passed=false&handles_challenges=1&impression_id=&inject_tweet=false&user_id=" + id,
+        "uri" : "https://twitter.com/i/user/unfollow?authenticity_token=" + settings.token + "&challenges_passed=false&handles_challenges=1&impression_id=&user_id=" + id,
         "timeout" : 10000,
         'headers' : {
             'pragma': 'no-cache',
@@ -239,6 +239,7 @@ internals.unfollow = function(id, done) {
     };
 
     return Request.post(options, function(err, res, body) {
+        console.log(err, res, body);
         if (err) {
             if (err.code === "ENOTFOUND" || err.code === "ETIMEDOUT") {
                 console.log('Could not fetch, retrying....');

@@ -16,14 +16,14 @@ internals.init = function() {
         if (err1) {
             console.log(err1);
             throw err1;
-        } 
+        }
 
         internals.getFollowers(function(err2, res2) {
             if (err2) {
                 console.log(err2);
                 throw err2;
             }
-            
+
             var mutual      = internals.getMutualRelationships(res1, res2);
             var nonMutual   = internals.getNonMutualRelationships(res1, res2);
             var duchebags   = res1.filter(function(el) {
@@ -36,12 +36,11 @@ internals.init = function() {
             console.log(nonMutual.length, 'nonMutual');
             console.log(duchebags.length, 'duchebags');
 
-            process.exit();
             //do the work
             Async.series([
                 internals.unfollowAll.bind(this, duchebags),
-                internals.followMany.bind(this, mutual),
-                internals.sendMessages.bind(this, mutual, settings.message)
+                internals.followMany.bind(this, mutual)
+                //internals.sendMessages.bind(this, mutual, settings.message)
             ], function(err) {
                 internals.save(function() {
                     if (err) {
@@ -62,7 +61,7 @@ internals.init = function() {
  */
 internals.save = function(done) {
     console.log('Saving storage...');
-    Fs.writeFile('./storage.json', JSON.stringify(storage, null, 2), done); 
+    Fs.writeFile('./storage.json', JSON.stringify(storage, null, 2), done);
 };
 
 /**
@@ -93,7 +92,7 @@ internals.getFriends = function(done, id, result, cursor) {
         }
 
         result = (res.ids || []).concat(result ? result : []);
-    
+
         if (res.next_cursor && !id) {
             return setTimeout(function() {
                 internals.getFriends(done, id, result, res.next_cursor_str);
@@ -132,7 +131,7 @@ internals.getFollowers = function(done, id, result, cursor) {
         if (err) {
             console.log(res);
         }
-    
+
         if (res.next_cursor && !id) {
             return setTimeout(function() {
                 internals.getFollowers(done, id, result, res.next_cursor_str);
@@ -150,13 +149,13 @@ internals.getRandomTarget = function(arr) {
     if (settings.target) {
         return settings.target;
     }
-    
+
     var target = null,
         index;
-    
+
     while (!target && arr.length > 0) {
         index = Math.floor(Math.random() * arr.length);
-        
+
         target = arr.splice(index, 1)[0];
         if (!storage.fetched[target]) {
             return target;
@@ -167,10 +166,10 @@ internals.getRandomTarget = function(arr) {
 };
 
 /**
- *  Diff a list of user ids and returns the common 
+ *  Diff a list of user ids and returns the common
  */
 internals.getMutualRelationships = function(a1, a2) {
-    return a1.filter(function(el) { 
+    return a1.filter(function(el) {
         return a2.indexOf(el) > -1;
     });
 };
@@ -219,9 +218,9 @@ internals.unfollow = function(id, done) {
         'headers' : {
             'pragma': 'no-cache',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36',
-            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 
-            'accept': 'application/json, text/javascript, */*; q=0.01', 
-            'cache-control': 'no-cache', 
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'cache-control': 'no-cache',
             'authority': 'twitter.com',
             'referer': 'https://twitter.com/following',
             'dnt': '1',
@@ -255,7 +254,7 @@ internals.unfollow = function(id, done) {
             console.log('Could not unfollow ' + id + ' ... : ' + (res.message || res.statusCode));
             return done();
         }
-    
+
         console.log('User ' + id + ' unfollowed!');
 
         return setTimeout(function() {
@@ -281,10 +280,10 @@ internals.followMany = function(targets, done) {
                 // console.log('Could not fetch followers from ' + target + ', trying another...');
                 // return internals.followMany(targets, done);
             // }
-        
+
             return done(err);
         }
-    
+
         if (!newUsers || newUsers.length < 1) {
             return done(new Error('No new users to target :< '));
         }
@@ -316,9 +315,9 @@ internals.follow = function(id, done) {
         'headers' : {
             'pragma': 'no-cache',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36',
-            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 
-            'accept': 'application/json, text/javascript, */*; q=0.01', 
-            'cache-control': 'no-cache', 
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+            'cache-control': 'no-cache',
             'authority': 'twitter.com',
             'referer': 'https://twitter.com/following',
             'dnt': '1',
@@ -345,7 +344,7 @@ internals.follow = function(id, done) {
 
             return done(err);
         }
-         
+
         storage.followed[id]  = true;
 
         if (res.statusCode !== 200) {
@@ -370,7 +369,7 @@ internals.follow = function(id, done) {
 
             return done(new Error('Invalid statuscode ' + res.statusCode));
         }
-    
+
         console.log('User ' + id + ' followed!');
 
         setTimeout(function() {
@@ -402,7 +401,7 @@ internals.sendMessage = function(id, message, done) {
     };
 
     return client.post('direct_messages/new', params,  function(err, res, response) {
-        if (err) { 
+        if (err) {
             return done(err);
         }
 
@@ -427,7 +426,7 @@ internals.filterOutStuff = function(arr, key) {
 //save with regurlarity
 setInterval(function() {
     internals.save()
-}, 30000);
+}, 120000);
 
 //internals.unfollow(15537791, function(err,res){});
 // internals.follow(3087094572, function(err, res){

@@ -30,6 +30,8 @@ internals.init = function() {
                 return res2.indexOf(el) === -1;
             });
 
+            console.log(new Date());
+            console.log();
             console.log(res1.length, 'following');
             console.log(res2.length, 'followers');
             console.log(mutual.length, 'mutual');
